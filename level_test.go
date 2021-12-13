@@ -6,6 +6,8 @@ import (
 
 // Test that String() properly convert level to string.
 func TestLevelString(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		l    Level
@@ -45,8 +47,6 @@ func TestLevelString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			if got := tt.l.String(); got != tt.want {
 				t.Errorf("tt.l.String() = %q want %q", got, tt.want)
 			}
@@ -56,6 +56,8 @@ func TestLevelString(t *testing.T) {
 
 // Test that ParseLevel() properly parse level from string.
 func TestParseLevel(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name string
 		s    string
@@ -95,8 +97,6 @@ func TestParseLevel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			if got := ParseLevel(tt.s); got != tt.want {
 				t.Errorf("ParseLevel(tt.s) = %v want %v", got, tt.want)
 			}

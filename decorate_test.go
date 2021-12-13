@@ -10,6 +10,8 @@ import (
 
 // Test that FilterLevel properly filter level less than specific.
 func TestFilterLevel(t *testing.T) {
+	t.Parallel()
+
 	filterLevel := LevelWarn
 	kvs := []interface{}{"k1", "v1"}
 	tests := []struct {
@@ -51,8 +53,6 @@ func TestFilterLevel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			var buf bytes.Buffer
 			log := NewStdLogger(&buf)
 			log = WithFilter(log, FilterLevel(filterLevel))
@@ -69,6 +69,8 @@ func TestFilterLevel(t *testing.T) {
 
 // Test that HandlerTimestamp properly append timestamp information into log.
 func TestHandlerTimestamp(t *testing.T) {
+	t.Parallel()
+
 	now := time.Now()
 	nowFunc := func() time.Time {
 		return now
@@ -104,8 +106,6 @@ func TestHandlerTimestamp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			var buf bytes.Buffer
 			log := NewStdLogger(&buf)
 			log = WithHandler(log, HandlerTimestamp(keyName, valueFormat, nowFunc))

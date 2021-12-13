@@ -8,6 +8,8 @@ import (
 
 // Test that stdLogger properly record logs.
 func TestStdLogger(t *testing.T) {
+	t.Parallel()
+
 	level := LevelInfo
 	tests := []struct {
 		name string
@@ -37,8 +39,6 @@ func TestStdLogger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			var buf bytes.Buffer
 			log := NewStdLogger(&buf)
 

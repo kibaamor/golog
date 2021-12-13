@@ -8,6 +8,8 @@ import (
 )
 
 func testHelperKey(helperFunc func(logger Logger, key string) *Helper, t *testing.T) {
+	t.Helper()
+
 	tests := []struct {
 		name string
 		call func(helper *Helper)
@@ -73,8 +75,6 @@ func testHelperKey(helperFunc func(logger Logger, key string) *Helper, t *testin
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			var buf bytes.Buffer
 			logger := NewStdLogger(&buf)
 			helper := helperFunc(logger, "log")
@@ -91,6 +91,8 @@ func testHelperKey(helperFunc func(logger Logger, key string) *Helper, t *testin
 
 // Test that NewHelper properly record logs.
 func TestNewHelper(t *testing.T) {
+	t.Parallel()
+
 	testHelperKey(func(logger Logger, key string) *Helper {
 		return NewHelper(logger, MessageKey(key))
 	}, t)
@@ -98,6 +100,8 @@ func TestNewHelper(t *testing.T) {
 
 // Test that WithKey properly record logs.
 func TestHelperWithKey(t *testing.T) {
+	t.Parallel()
+
 	testHelperKey(func(logger Logger, key string) *Helper {
 		helper := NewHelper(logger)
 		return helper.WithKey(key)

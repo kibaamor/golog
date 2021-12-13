@@ -7,6 +7,8 @@ import (
 )
 
 func TestTermLogger(t *testing.T) {
+	t.Parallel()
+
 	level := LevelInfo
 	tests := []struct {
 		name string
@@ -76,8 +78,6 @@ func TestTermLogger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			var buf bytes.Buffer
 			log := NewTermLogger(&buf, false)
 
