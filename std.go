@@ -37,7 +37,7 @@ func (l *stdLogger) Log(ctx context.Context, level Level, kvs ...interface{}) er
 	}
 
 	buf := l.pool.Get().(*bytes.Buffer)
-	buf.WriteString(level.String())
+	_, _ = buf.WriteString(level.String())
 	for i := 0; i < len(kvs); i += 2 {
 		_, _ = fmt.Fprintf(buf, `, "%v": "%v"`, kvs[i], kvs[i+1])
 	}
