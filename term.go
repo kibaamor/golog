@@ -11,6 +11,7 @@ import (
 	"github.com/fatih/color"
 )
 
+// WriteFunc is log writer function.
 type WriteFunc func(w io.Writer, a ...interface{})
 
 var colorFunc map[Level]WriteFunc

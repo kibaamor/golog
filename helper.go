@@ -7,7 +7,10 @@ import (
 )
 
 var (
-	DefaultMsgKey     = "msg"
+	// DefaultMsgKey is default message key for logging.
+	DefaultMsgKey = "msg"
+
+	// DefaultMsgContext is default message Context for logging.
 	DefaultMsgContext = context.Background()
 )
 

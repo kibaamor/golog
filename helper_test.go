@@ -8,65 +8,85 @@ import (
 )
 
 func testHelperKey(helperFunc func(logger Logger, key string) *Helper, t *testing.T) {
-	var buf bytes.Buffer
-	logger := NewStdLogger(&buf)
-	helper := helperFunc(logger, "log")
-
-	want := `DEBUG, "log": "123"` + "\n"
-	helper.Debug(1, "2", 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
+	tests := []struct {
+		name string
+		call func(helper *Helper)
+		want string
+	}{
+		{
+			name: "debug",
+			call: func(helper *Helper) {
+				helper.Debug(1, "2", 3)
+			},
+			want: `DEBUG, "log": "123"`,
+		},
+		{
+			name: "debugf",
+			call: func(helper *Helper) {
+				helper.Debugf("%d %d %d", 1, 2, 3)
+			},
+			want: `DEBUG, "log": "1 2 3"`,
+		},
+		{
+			name: "info",
+			call: func(helper *Helper) {
+				helper.Info(1, "2", 3)
+			},
+			want: `INFO, "log": "123"`,
+		},
+		{
+			name: "infof",
+			call: func(helper *Helper) {
+				helper.Infof("%d %d %d", 1, 2, 3)
+			},
+			want: `INFO, "log": "1 2 3"`,
+		},
+		{
+			name: "warn",
+			call: func(helper *Helper) {
+				helper.Warn(1, "2", 3)
+			},
+			want: `WARN, "log": "123"`,
+		},
+		{
+			name: "warnf",
+			call: func(helper *Helper) {
+				helper.Warnf("%d %d %d", 1, 2, 3)
+			},
+			want: `WARN, "log": "1 2 3"`,
+		},
+		{
+			name: "error",
+			call: func(helper *Helper) {
+				helper.Error(1, "2", 3)
+			},
+			want: `ERROR, "log": "123"`,
+		},
+		{
+			name: "errorf",
+			call: func(helper *Helper) {
+				helper.Errorf("%d %d %d", 1, 2, 3)
+			},
+			want: `ERROR, "log": "1 2 3"`,
+		},
 	}
-	buf.Reset()
 
-	want = `DEBUG, "log": "1 2 3"` + "\n"
-	helper.Debugf("%d %d %d", 1, 2, 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
-	}
-	buf.Reset()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	want = `INFO, "log": "123"` + "\n"
-	helper.Info(1, "2", 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
-	}
-	buf.Reset()
+			var buf bytes.Buffer
+			logger := NewStdLogger(&buf)
+			helper := helperFunc(logger, "log")
 
-	want = `INFO, "log": "1 2 3"` + "\n"
-	helper.Infof("%d %d %d", 1, 2, 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
-	}
-	buf.Reset()
+			tt.call(helper)
+			want := tt.want + "\n"
 
-	want = `WARN, "log": "123"` + "\n"
-	helper.Warn(1, "2", 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
+			if got := buf.String(); got != want {
+				t.Errorf("buf.String() = %q want %q", got, want)
+			}
+		})
 	}
-	buf.Reset()
-
-	want = `WARN, "log": "1 2 3"` + "\n"
-	helper.Warnf("%d %d %d", 1, 2, 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
-	}
-	buf.Reset()
-
-	want = `ERROR, "log": "123"` + "\n"
-	helper.Error(1, "2", 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
-	}
-	buf.Reset()
-
-	want = `ERROR, "log": "1 2 3"` + "\n"
-	helper.Errorf("%d %d %d", 1, 2, 3)
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
-	}
-	buf.Reset()
 }
 
 // Test that NewHelper properly record logs.
@@ -99,9 +119,8 @@ func TestHelperWithContext(t *testing.T) {
 
 	helper.Info("k")
 
-	want := `INFO, "msg": "k", "test key": "test value"` + "\n"
-	if buf.String() != want {
-		t.Errorf("got: %v, want: %s", buf.String(), want)
+	if got, want := buf.String(), `INFO, "msg": "k", "test key": "test value"`+"\n"; got != want {
+		t.Errorf("buf.String() = %q want %q", got, want)
 	}
 }
 

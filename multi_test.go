@@ -17,14 +17,14 @@ func TestMultiLogger(t *testing.T) {
 	l := MultiLogger(slice...)
 
 	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != nil {
-		t.Errorf("Log(LevelInfo, `k1`, `v1`) = %v, want nil", err)
+		t.Errorf("l.Log() = %v want nil", err)
 	}
 	want := `INFO, "k1": "v1"` + "\n"
-	if buf1.String() != want {
-		t.Errorf("buf1.String() = %q, want %q", buf1.String(), want)
+	if got := buf1.String(); got != want {
+		t.Errorf("buf1.String() = %q want %q", got, want)
 	}
-	if buf2.String() != want {
-		t.Errorf("buf2.String() = %q, want %q", buf2.String(), want)
+	if got := buf2.String(); got != want {
+		t.Errorf("buf2.String() = %q want %q", got, want)
 	}
 }
 
@@ -37,11 +37,10 @@ func TestMultiLoggerCopy(t *testing.T) {
 	slice[0] = nil
 
 	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != nil {
-		t.Errorf("Log(LevelInfo, `k1`, `v1`) = %v, want nil", err)
+		t.Errorf("l.Log() = %v want nil", err)
 	}
-	want := `INFO, "k1": "v1"` + "\n"
-	if buf.String() != want {
-		t.Errorf("buf.String() = %q, want %q", buf.String(), want)
+	if got, want := buf.String(), `INFO, "k1": "v1"`+"\n"; got != want {
+		t.Errorf("buf.String() = %q want %q", got, want)
 	}
 }
 
@@ -106,14 +105,11 @@ func TestMultiLoggerError(t *testing.T) {
 		t.Errorf("multiLogger did not returning error: expected err: %v, got: %v", io.EOF, err)
 	}
 
-	frontWant := `INFO, "k1": "v1"` + "\n"
-	backWant := ""
-
-	if frontBuffer.String() != frontWant {
-		t.Errorf("frontBuffer.String() = %q, want %q", frontBuffer.String(), frontWant)
+	if got, want := frontBuffer.String(), `INFO, "k1": "v1"`+"\n"; got != want {
+		t.Errorf("frontBuffer.String() = %q want %q", got, want)
 	}
-	if backBuffer.String() != backWant {
-		t.Errorf("backBuffer.String() = %q, want %q", backBuffer.String(), backWant)
+	if got, want := backBuffer.String(), ""; got != want {
+		t.Errorf("backBuffer.String() = %q want %q", got, want)
 	}
 }
 
@@ -130,7 +126,7 @@ func TestMultiLoggerErrorInMiddle(t *testing.T) {
 	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != io.EOF {
 		t.Errorf("multiLogger did not returning error: expected err: %v, got: %v", io.EOF, err)
 	}
-	if buf.String() != "" {
-		t.Errorf("buf.String() = %q, want %q", buf.String(), "")
+	if got, want := buf.String(), ""; got != want {
+		t.Errorf("buf.String() = %q want %q", got, want)
 	}
 }

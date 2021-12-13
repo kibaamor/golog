@@ -51,6 +51,8 @@ func TestFilterLevel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			var buf bytes.Buffer
 			log := NewStdLogger(&buf)
 			log = WithFilter(log, FilterLevel(filterLevel))
@@ -59,7 +61,7 @@ func TestFilterLevel(t *testing.T) {
 				t.Error(err)
 			}
 			if got := buf.String(); got != tt.want {
-				t.Errorf("got %v, want: %v", got, tt.want)
+				t.Errorf("buf.String() = %q want = %q", got, tt.want)
 			}
 		})
 	}
@@ -72,7 +74,7 @@ func TestHandlerTimestamp(t *testing.T) {
 		return now
 	}
 	keyName := DefaultTimestampKeyName
-	valueFormat := DefaultTimestampValueFormat
+	valueFormat := DefaultTimestampFormat
 
 	tests := []struct {
 		name string
@@ -102,6 +104,8 @@ func TestHandlerTimestamp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			var buf bytes.Buffer
 			log := NewStdLogger(&buf)
 			log = WithHandler(log, HandlerTimestamp(keyName, valueFormat, nowFunc))
@@ -110,7 +114,7 @@ func TestHandlerTimestamp(t *testing.T) {
 				t.Error(err)
 			}
 			if got := buf.String(); got != tt.want {
-				t.Errorf("got %v, want: %v", got, tt.want)
+				t.Errorf("buf.String() = %q want = %q", got, tt.want)
 			}
 		})
 	}
@@ -125,8 +129,7 @@ func TestHandlerDefaultCaller(t *testing.T) {
 	if err := log.Log(context.Background(), LevelInfo, "k1", "v1"); err != nil {
 		t.Error(err)
 	}
-	want := `INFO, "k1": "v1", "caller": "log_test.go:125"` + "\n"
-	if got := buf.String(); got != want {
-		t.Errorf("got %v, want: %v", got, want)
+	if got, want := buf.String(), `INFO, "k1": "v1", "caller": "decorate_test.go:129"`+"\n"; got != want {
+		t.Errorf("buf.String() = %q want = %q", got, want)
 	}
 }

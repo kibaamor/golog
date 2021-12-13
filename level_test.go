@@ -45,8 +45,10 @@ func TestLevelString(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if got := tt.l.String(); got != tt.want {
-				t.Errorf("String() = %v, want %v", got, tt.want)
+				t.Errorf("tt.l.String() = %q want %q", got, tt.want)
 			}
 		})
 	}
@@ -93,8 +95,10 @@ func TestParseLevel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if got := ParseLevel(tt.s); got != tt.want {
-				t.Errorf("ParseLevel() = %v, want %v", got, tt.want)
+				t.Errorf("ParseLevel(tt.s) = %v want %v", got, tt.want)
 			}
 		})
 	}

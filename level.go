@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Level is log level.
 type Level int8
 
 const (
@@ -15,6 +16,7 @@ const (
 	LevelFatal
 )
 
+// String convert log level to string.
 func (l Level) String() string {
 	switch l {
 	case LevelDebug:
@@ -32,6 +34,7 @@ func (l Level) String() string {
 	}
 }
 
+// ParseLevel parsing log level from string.
 func ParseLevel(s string) Level {
 	switch strings.ToUpper(s) {
 	case "DEBUG":
