@@ -94,10 +94,13 @@ func HandlerTimestamp(keyName, valueFormat string, nowFunc func() time.Time) Han
 func HandlerCaller(keyName string, depth int, withFullpath bool) Handler {
 	return func(ctx context.Context, level Level, kvs []interface{}) []interface{} {
 		_, file, line, _ := runtime.Caller(depth)
-		for strings.LastIndex(file, "/golog/helper.go") > 0 {
+
+		// skip caller in file helper.go
+		for strings.HasSuffix(file, "/helper.go") {
 			depth++
 			_, file, line, _ = runtime.Caller(depth)
 		}
+
 		if !withFullpath {
 			index := strings.LastIndexByte(file, '/')
 			file = file[index+1:]
