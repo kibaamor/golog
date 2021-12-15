@@ -12,7 +12,7 @@ var (
 	// DefaultTimestampKeyName is default log key for timestamp.
 	DefaultTimestampKeyName = "ts"
 	// DefaultTimestampFormat is default format for timestamp.
-	DefaultTimestampFormat = "2006-01-02 15:04:05.000"
+	DefaultTimestampFormat = "2006-01-02T15:04:05.000Z07:00"
 	// DefaultTimestampNowFunc is default function for get current timestamp.
 	DefaultTimestampNowFunc = time.Now
 	// DefaultCallerKeyName is default log key for caller information.
