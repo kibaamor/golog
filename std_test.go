@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"testing"
 )
 
@@ -42,7 +41,7 @@ func TestStdLogger(t *testing.T) {
 			var buf bytes.Buffer
 			log := NewStdLogger(&buf)
 
-			log.Log(context.Background(), level, tt.kvs...)
+			log.Log(level, tt.kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want %q", got, tt.want)
 			}

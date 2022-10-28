@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -57,7 +56,7 @@ func TestFilterLevel(t *testing.T) {
 			log := NewStdLogger(&buf)
 			log = WithFilter(log, FilterLevel(filterLevel))
 
-			log.Log(context.Background(), tt.l, kvs...)
+			log.Log(tt.l, kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want = %q", got, tt.want)
 			}
@@ -108,7 +107,7 @@ func TestHandlerTimestamp(t *testing.T) {
 			log := NewStdLogger(&buf)
 			log = WithHandler(log, HandlerTimestamp(keyName, valueFormat, nowFunc))
 
-			log.Log(context.Background(), tt.l, tt.kvs...)
+			log.Log(tt.l, tt.kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want = %q", got, tt.want)
 			}
@@ -122,8 +121,8 @@ func TestHandlerDefaultCaller(t *testing.T) {
 	log := NewStdLogger(&buf)
 	log = WithHandler(log, HandlerDefaultCaller)
 
-	log.Log(context.Background(), LevelInfo, "k1", "v1")
-	if got, want := buf.String(), `INFO, "k1": "v1", "caller": "decorate_test.go:125"`+"\n"; got != want {
+	log.Log(LevelInfo, "k1", "v1")
+	if got, want := buf.String(), `INFO, "k1": "v1", "caller": "decorate_test.go:124"`+"\n"; got != want {
 		t.Errorf("buf.String() = %q want = %q", got, want)
 	}
 }

@@ -1,14 +1,12 @@
 package golog
 
-import "context"
-
 type multiLogger struct {
 	loggers []Logger
 }
 
-func (t *multiLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
+func (t *multiLogger) Log(level Level, kvs ...interface{}) {
 	for _, l := range t.loggers {
-		l.Log(ctx, level, kvs...)
+		l.Log(level, kvs...)
 	}
 }
 

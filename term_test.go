@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"testing"
 )
 
@@ -81,7 +80,7 @@ func TestTermLogger(t *testing.T) {
 			var buf bytes.Buffer
 			log := NewTermLogger(&buf, false)
 
-			log.Log(context.Background(), level, tt.kvs...)
+			log.Log(level, tt.kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want %q", got, tt.want)
 			}

@@ -1,10 +1,8 @@
 package golog
 
-import "context"
-
 // Logger is a logger interface.
 type Logger interface {
-	Log(ctx context.Context, level Level, kvs ...interface{})
+	Log(level Level, kvs ...interface{})
 }
 
 // Discard is a Logger on which all Log calls succeed
@@ -13,5 +11,5 @@ var Discard Logger = discard{}
 
 type discard struct{}
 
-func (discard) Log(ctx context.Context, level Level, kvs ...interface{}) {
+func (discard) Log(level Level, kvs ...interface{}) {
 }

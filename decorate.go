@@ -1,7 +1,6 @@
 package golog
 
 import (
-	"context"
 	"runtime"
 	"strconv"
 	"strings"
@@ -29,10 +28,10 @@ var (
 )
 
 // Filter discard log with condition.
-type Filter func(ctx context.Context, level Level, kvs []interface{}) bool
+type Filter func(level Level, kvs []interface{}) bool
 
 // Handler modify log with anything.
-type Handler func(ctx context.Context, level Level, kvs []interface{}) []interface{}
+type Handler func(level Level, kvs []interface{}) []interface{}
 
 type decoratedLogger struct {
 	logger  Logger
@@ -40,16 +39,16 @@ type decoratedLogger struct {
 	handler []Handler
 }
 
-func (l *decoratedLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
+func (l *decoratedLogger) Log(level Level, kvs ...interface{}) {
 	for _, f := range l.filter {
-		if f(ctx, level, kvs) {
+		if f(level, kvs) {
 			return
 		}
 	}
 	for _, f := range l.handler {
-		kvs = f(ctx, level, kvs)
+		kvs = f(level, kvs)
 	}
-	l.logger.Log(ctx, level, kvs...)
+	l.logger.Log(level, kvs...)
 }
 
 // WithFilter decorate logger with filters
@@ -78,21 +77,21 @@ func WithHandler(logger Logger, handler ...Handler) Logger {
 
 // FilterLevel filter log level less than specific level.
 func FilterLevel(l Level) Filter {
-	return func(ctx context.Context, level Level, kvs []interface{}) bool {
+	return func(level Level, kvs []interface{}) bool {
 		return level < l
 	}
 }
 
 // HandlerTimestamp append timestamp information into log.
 func HandlerTimestamp(keyName, valueFormat string, nowFunc func() time.Time) Handler {
-	return func(ctx context.Context, level Level, kvs []interface{}) []interface{} {
+	return func(level Level, kvs []interface{}) []interface{} {
 		return append(kvs, keyName, nowFunc().Format(valueFormat))
 	}
 }
 
 // HandlerCaller append caller information into log.
 func HandlerCaller(keyName string, depth int, withFullPath bool) Handler {
-	return func(ctx context.Context, level Level, kvs []interface{}) []interface{} {
+	return func(level Level, kvs []interface{}) []interface{} {
 		_, file, line, _ := runtime.Caller(depth)
 
 		// skip caller in file helper.go

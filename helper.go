@@ -24,18 +24,10 @@ func MessageKey(key string) Option {
 	}
 }
 
-// MessageContext set default log message context.
-func MessageContext(ctx context.Context) Option {
-	return func(h *Helper) {
-		h.ctx = ctx
-	}
-}
-
 // Helper is a logger helper.
 type Helper struct {
 	logger Logger
 	key    string
-	ctx    context.Context
 }
 
 // NewHelper new a logger helper.
@@ -43,7 +35,6 @@ func NewHelper(logger Logger, opts ...Option) *Helper {
 	helper := &Helper{
 		logger: logger,
 		key:    DefaultMsgKey,
-		ctx:    DefaultMsgContext,
 	}
 	for _, o := range opts {
 		o(helper)
@@ -61,22 +52,12 @@ func (h *Helper) WithKey(key string) *Helper {
 	return &Helper{
 		logger: h.logger,
 		key:    key,
-		ctx:    h.ctx,
-	}
-}
-
-// WithContext create a logger helper with new message context from an exist Helper.
-func (h *Helper) WithContext(ctx context.Context) *Helper {
-	return &Helper{
-		logger: h.logger,
-		key:    h.key,
-		ctx:    ctx,
 	}
 }
 
 // Log log a message.
 func (h *Helper) Log(level Level, kvs ...interface{}) {
-	h.logger.Log(h.ctx, level, kvs...)
+	h.logger.Log(level, kvs...)
 }
 
 // Debug logs a message at debug level.

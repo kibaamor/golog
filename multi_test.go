@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"runtime"
 	"testing"
 )
@@ -15,7 +14,7 @@ func TestMultiLogger(t *testing.T) {
 	slice := []Logger{NewStdLogger(&buf1), NewStdLogger(&buf2)}
 	l := MultiLogger(slice...)
 
-	l.Log(context.Background(), LevelInfo, "k1", "v1")
+	l.Log(LevelInfo, "k1", "v1")
 	want := `INFO, "k1": "v1"` + "\n"
 	if got := buf1.String(); got != want {
 		t.Errorf("buf1.String() = %q want %q", got, want)
@@ -33,7 +32,7 @@ func TestMultiLoggerCopy(t *testing.T) {
 	l := MultiLogger(slice...)
 	slice[0] = nil
 
-	l.Log(context.Background(), LevelInfo, "k1", "v1")
+	l.Log(LevelInfo, "k1", "v1")
 	if got, want := buf.String(), `INFO, "k1": "v1"`+"\n"; got != want {
 		t.Errorf("buf.String() = %q want %q", got, want)
 	}
@@ -50,11 +49,11 @@ func callDepth(callers []uintptr) (depth int) {
 	return
 }
 
-// loggerFunc is an Logger implemented by the underlying func.
-type loggerFunc func(ctx context.Context, level Level, kvs ...interface{})
+// loggerFunc is a Logger implemented by the underlying func.
+type loggerFunc func(level Level, kvs ...interface{})
 
-func (f loggerFunc) Log(ctx context.Context, level Level, kvs ...interface{}) {
-	f(ctx, level, kvs...)
+func (f loggerFunc) Log(level Level, kvs ...interface{}) {
+	f(level, kvs...)
 }
 
 // Test that MultiLogger properly flattens chained multiLoggers.
@@ -64,7 +63,7 @@ func TestMultiLoggerSingleChainFlatten(t *testing.T) {
 	myDepth := callDepth(pc[:n])
 	var logDepth int // will contain the depth from which loggerFunc.Logger was called
 
-	l := MultiLogger(loggerFunc(func(ctx context.Context, level Level, kvs ...interface{}) {
+	l := MultiLogger(loggerFunc(func(level Level, kvs ...interface{}) {
 		n := runtime.Callers(1, pc)
 		logDepth += callDepth(pc[:n])
 	}))
@@ -75,7 +74,7 @@ func TestMultiLoggerSingleChainFlatten(t *testing.T) {
 		ml = MultiLogger(ml)
 	}
 	ml = MultiLogger(l, ml, l, ml)
-	ml.Log(context.Background(), LevelInfo, "k1", "v1")
+	ml.Log(LevelInfo, "k1", "v1")
 
 	if logDepth != 4*(myDepth+2) { // 2 should be multiLogger.Log and loggerFunc.Log
 		t.Errorf("multiLogger did not flatten chained multiLoggers: expected logDepth %d, got %d",

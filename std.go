@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"log"
@@ -27,7 +26,7 @@ func NewStdLogger(w io.Writer) Logger {
 }
 
 // Log write the kv pairs log.
-func (l *stdLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
+func (l *stdLogger) Log(level Level, kvs ...interface{}) {
 	if len(kvs) == 0 {
 		return
 	}

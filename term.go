@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"log"
@@ -33,7 +32,7 @@ type termLogger struct {
 	defaultWriteFunc WriteFunc
 }
 
-// NewTermLogger new a optimized logger for terminal with writer.
+// NewTermLogger new an optimized logger for terminal with writer.
 func NewTermLogger(w io.Writer, colorful bool) Logger {
 	return &termLogger{
 		log:      log.New(w, "", 0),
@@ -70,7 +69,7 @@ func extractDefaultTSCallerMsg(kvs ...interface{}) (ts, caller, msg interface{})
 }
 
 // Log write the kv pairs log.
-func (l *termLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
+func (l *termLogger) Log(level Level, kvs ...interface{}) {
 	if len(kvs) == 0 {
 		return
 	}

@@ -2,7 +2,6 @@ package golog
 
 import (
 	"bytes"
-	"context"
 	"io"
 	"testing"
 )
@@ -106,26 +105,6 @@ func TestHelperWithKey(t *testing.T) {
 		helper := NewHelper(logger)
 		return helper.WithKey(key)
 	}, t)
-}
-
-type testKey struct{}
-
-// Test that WithContext properly record logs.
-func TestHelperWithContext(t *testing.T) {
-	ctx := context.WithValue(context.Background(), testKey{}, "test value")
-
-	var buf bytes.Buffer
-	logger := NewStdLogger(&buf)
-	logger = WithHandler(logger, func(ctx context.Context, level Level, kvs []interface{}) []interface{} {
-		return append(kvs, "test key", ctx.Value(testKey{}).(string))
-	})
-	helper := NewHelper(logger, MessageContext(ctx))
-
-	helper.Info("k")
-
-	if got, want := buf.String(), `INFO, "msg": "k", "test key": "test value"`+"\n"; got != want {
-		t.Errorf("buf.String() = %q want %q", got, want)
-	}
 }
 
 func BenchmarkHelperPrint(b *testing.B) {
