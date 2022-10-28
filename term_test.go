@@ -81,9 +81,7 @@ func TestTermLogger(t *testing.T) {
 			var buf bytes.Buffer
 			log := NewTermLogger(&buf, false)
 
-			if err := log.Log(context.Background(), level, tt.kvs...); err != nil {
-				t.Error(err)
-			}
+			log.Log(context.Background(), level, tt.kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want %q", got, tt.want)
 			}

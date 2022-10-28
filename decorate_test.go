@@ -57,9 +57,7 @@ func TestFilterLevel(t *testing.T) {
 			log := NewStdLogger(&buf)
 			log = WithFilter(log, FilterLevel(filterLevel))
 
-			if err := log.Log(context.Background(), tt.l, kvs...); err != nil {
-				t.Error(err)
-			}
+			log.Log(context.Background(), tt.l, kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want = %q", got, tt.want)
 			}
@@ -110,9 +108,7 @@ func TestHandlerTimestamp(t *testing.T) {
 			log := NewStdLogger(&buf)
 			log = WithHandler(log, HandlerTimestamp(keyName, valueFormat, nowFunc))
 
-			if err := log.Log(context.Background(), tt.l, tt.kvs...); err != nil {
-				t.Error(err)
-			}
+			log.Log(context.Background(), tt.l, tt.kvs...)
 			if got := buf.String(); got != tt.want {
 				t.Errorf("buf.String() = %q want = %q", got, tt.want)
 			}
@@ -126,10 +122,8 @@ func TestHandlerDefaultCaller(t *testing.T) {
 	log := NewStdLogger(&buf)
 	log = WithHandler(log, HandlerDefaultCaller)
 
-	if err := log.Log(context.Background(), LevelInfo, "k1", "v1"); err != nil {
-		t.Error(err)
-	}
-	if got, want := buf.String(), `INFO, "k1": "v1", "caller": "decorate_test.go:129"`+"\n"; got != want {
+	log.Log(context.Background(), LevelInfo, "k1", "v1")
+	if got, want := buf.String(), `INFO, "k1": "v1", "caller": "decorate_test.go:125"`+"\n"; got != want {
 		t.Errorf("buf.String() = %q want = %q", got, want)
 	}
 }

@@ -70,9 +70,9 @@ func extractDefaultTSCallerMsg(kvs ...interface{}) (ts, caller, msg interface{})
 }
 
 // Log write the kv pairs log.
-func (l *termLogger) Log(ctx context.Context, level Level, kvs ...interface{}) error {
+func (l *termLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
 	if len(kvs) == 0 {
-		return nil
+		return
 	}
 
 	if (len(kvs) & 1) == 1 {
@@ -110,6 +110,4 @@ func (l *termLogger) Log(ctx context.Context, level Level, kvs ...interface{}) e
 
 	buf.Reset()
 	l.pool.Put(buf)
-
-	return nil
 }

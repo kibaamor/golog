@@ -3,7 +3,6 @@ package golog
 import (
 	"bytes"
 	"context"
-	"io"
 	"runtime"
 	"testing"
 )
@@ -16,9 +15,7 @@ func TestMultiLogger(t *testing.T) {
 	slice := []Logger{NewStdLogger(&buf1), NewStdLogger(&buf2)}
 	l := MultiLogger(slice...)
 
-	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != nil {
-		t.Errorf("l.Log() = %v want nil", err)
-	}
+	l.Log(context.Background(), LevelInfo, "k1", "v1")
 	want := `INFO, "k1": "v1"` + "\n"
 	if got := buf1.String(); got != want {
 		t.Errorf("buf1.String() = %q want %q", got, want)
@@ -36,9 +33,7 @@ func TestMultiLoggerCopy(t *testing.T) {
 	l := MultiLogger(slice...)
 	slice[0] = nil
 
-	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != nil {
-		t.Errorf("l.Log() = %v want nil", err)
-	}
+	l.Log(context.Background(), LevelInfo, "k1", "v1")
 	if got, want := buf.String(), `INFO, "k1": "v1"`+"\n"; got != want {
 		t.Errorf("buf.String() = %q want %q", got, want)
 	}
@@ -56,10 +51,10 @@ func callDepth(callers []uintptr) (depth int) {
 }
 
 // loggerFunc is an Logger implemented by the underlying func.
-type loggerFunc func(ctx context.Context, level Level, kvs ...interface{}) error
+type loggerFunc func(ctx context.Context, level Level, kvs ...interface{})
 
-func (f loggerFunc) Log(ctx context.Context, level Level, kvs ...interface{}) error {
-	return f(ctx, level, kvs...)
+func (f loggerFunc) Log(ctx context.Context, level Level, kvs ...interface{}) {
+	f(ctx, level, kvs...)
 }
 
 // Test that MultiLogger properly flattens chained multiLoggers.
@@ -69,10 +64,9 @@ func TestMultiLoggerSingleChainFlatten(t *testing.T) {
 	myDepth := callDepth(pc[:n])
 	var logDepth int // will contain the depth from which loggerFunc.Logger was called
 
-	l := MultiLogger(loggerFunc(func(ctx context.Context, level Level, kvs ...interface{}) error {
+	l := MultiLogger(loggerFunc(func(ctx context.Context, level Level, kvs ...interface{}) {
 		n := runtime.Callers(1, pc)
 		logDepth += callDepth(pc[:n])
-		return nil
 	}))
 
 	ml := l
@@ -81,52 +75,10 @@ func TestMultiLoggerSingleChainFlatten(t *testing.T) {
 		ml = MultiLogger(ml)
 	}
 	ml = MultiLogger(l, ml, l, ml)
-	_ = ml.Log(context.Background(), LevelInfo, "k1", "v1")
+	ml.Log(context.Background(), LevelInfo, "k1", "v1")
 
 	if logDepth != 4*(myDepth+2) { // 2 should be multiLogger.Log and loggerFunc.Log
 		t.Errorf("multiLogger did not flatten chained multiLoggers: expected logDepth %d, got %d",
 			4*(myDepth+2), logDepth)
-	}
-}
-
-// Test that a logger returning error in the front of a MultiLogger chain.
-func TestMultiLoggerError(t *testing.T) {
-	var frontBuffer bytes.Buffer
-	var backBuffer bytes.Buffer
-	frontLogger := NewStdLogger(&frontBuffer)
-	backLogger := NewStdLogger(&backBuffer)
-	eofLogger := loggerFunc(func(ctx context.Context, level Level, kvs ...interface{}) error {
-		return io.EOF
-	})
-
-	slice := []Logger{frontLogger, eofLogger, backLogger}
-	l := MultiLogger(slice...)
-	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != io.EOF {
-		t.Errorf("multiLogger did not returning error: expected err: %v, got: %v", io.EOF, err)
-	}
-
-	if got, want := frontBuffer.String(), `INFO, "k1": "v1"`+"\n"; got != want {
-		t.Errorf("frontBuffer.String() = %q want %q", got, want)
-	}
-	if got, want := backBuffer.String(), ""; got != want {
-		t.Errorf("backBuffer.String() = %q want %q", got, want)
-	}
-}
-
-// Test that a logger returning error in the front of a MultiLogger chain.
-func TestMultiLoggerErrorInMiddle(t *testing.T) {
-	var buf bytes.Buffer
-	bufLogger := NewStdLogger(&buf)
-	eofLogger := loggerFunc(func(ctx context.Context, level Level, kvs ...interface{}) error {
-		return io.EOF
-	})
-
-	slice := []Logger{eofLogger, bufLogger, bufLogger}
-	l := MultiLogger(slice...)
-	if err := l.Log(context.Background(), LevelInfo, "k1", "v1"); err != io.EOF {
-		t.Errorf("multiLogger did not returning error: expected err: %v, got: %v", io.EOF, err)
-	}
-	if got, want := buf.String(), ""; got != want {
-		t.Errorf("buf.String() = %q want %q", got, want)
 	}
 }

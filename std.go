@@ -27,9 +27,9 @@ func NewStdLogger(w io.Writer) Logger {
 }
 
 // Log write the kv pairs log.
-func (l *stdLogger) Log(ctx context.Context, level Level, kvs ...interface{}) error {
+func (l *stdLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
 	if len(kvs) == 0 {
-		return nil
+		return
 	}
 
 	if (len(kvs) & 1) == 1 {
@@ -44,6 +44,4 @@ func (l *stdLogger) Log(ctx context.Context, level Level, kvs ...interface{}) er
 	_ = l.log.Output(0, buf.String())
 	buf.Reset()
 	l.pool.Put(buf)
-
-	return nil
 }

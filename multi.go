@@ -6,13 +6,10 @@ type multiLogger struct {
 	loggers []Logger
 }
 
-func (t *multiLogger) Log(ctx context.Context, level Level, kvs ...interface{}) error {
+func (t *multiLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
 	for _, l := range t.loggers {
-		if err := l.Log(ctx, level, kvs...); err != nil {
-			return err
-		}
+		l.Log(ctx, level, kvs...)
 	}
-	return nil
 }
 
 var _ Logger = (*multiLogger)(nil)

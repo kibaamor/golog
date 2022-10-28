@@ -19,13 +19,13 @@ var (
 	DefaultCallerKeyName = "caller"
 	// DefaultCallerDepth is default depth to skip while get stack information.
 	DefaultCallerDepth = 2
-	// DefaultCallerWithFullpath control whether if recording the fullpath of log source file.
-	DefaultCallerWithFullpath = false
+	// DefaultCallerWithFullPath control whether if recording the full path of log source file.
+	DefaultCallerWithFullPath = false
 
 	// HandlerDefaultTimestamp is default timestamp handler with default settings.
 	HandlerDefaultTimestamp = HandlerTimestamp(DefaultTimestampKeyName, DefaultTimestampFormat, DefaultTimestampNowFunc)
 	// HandlerDefaultCaller is default caller handler with default settings.
-	HandlerDefaultCaller = HandlerCaller(DefaultCallerKeyName, DefaultCallerDepth, DefaultCallerWithFullpath)
+	HandlerDefaultCaller = HandlerCaller(DefaultCallerKeyName, DefaultCallerDepth, DefaultCallerWithFullPath)
 )
 
 // Filter discard log with condition.
@@ -40,16 +40,16 @@ type decoratedLogger struct {
 	handler []Handler
 }
 
-func (l *decoratedLogger) Log(ctx context.Context, level Level, kvs ...interface{}) error {
+func (l *decoratedLogger) Log(ctx context.Context, level Level, kvs ...interface{}) {
 	for _, f := range l.filter {
 		if f(ctx, level, kvs) {
-			return nil
+			return
 		}
 	}
 	for _, f := range l.handler {
 		kvs = f(ctx, level, kvs)
 	}
-	return l.logger.Log(ctx, level, kvs...)
+	l.logger.Log(ctx, level, kvs...)
 }
 
 // WithFilter decorate logger with filters
@@ -91,7 +91,7 @@ func HandlerTimestamp(keyName, valueFormat string, nowFunc func() time.Time) Han
 }
 
 // HandlerCaller append caller information into log.
-func HandlerCaller(keyName string, depth int, withFullpath bool) Handler {
+func HandlerCaller(keyName string, depth int, withFullPath bool) Handler {
 	return func(ctx context.Context, level Level, kvs []interface{}) []interface{} {
 		_, file, line, _ := runtime.Caller(depth)
 
@@ -101,7 +101,7 @@ func HandlerCaller(keyName string, depth int, withFullpath bool) Handler {
 			_, file, line, _ = runtime.Caller(depth)
 		}
 
-		if !withFullpath {
+		if !withFullPath {
 			index := strings.LastIndexByte(file, '/')
 			file = file[index+1:]
 		}
